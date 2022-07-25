@@ -66,8 +66,10 @@ static GList* nautilus_png_convert_get_file_items(NautilusMenuProvider *provider
 
   for (GList *file = files; file != NULL; file = file->next) {
     if (!nautilus_png_convert_file_is_image(file->data))
-      continue;
+      return NULL;
+  }
 
+  for (GList *file = files; file != NULL; file = file->next) {
     item = nautilus_menu_item_new("NautilusPNGConvert::convert", "Convert to PNG", "Convert each selected image to PNG", "camera-photo");
     g_signal_connect(item, "activate", G_CALLBACK(image_convert_callback), nautilus_file_info_list_copy(files));
     items = g_list_append(items, item);
