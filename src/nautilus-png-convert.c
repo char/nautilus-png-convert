@@ -71,9 +71,11 @@ static GList* nautilus_png_convert_get_file_items(NautilusMenuProvider *provider
     item = nautilus_menu_item_new("NautilusPNGConvert::convert", "Convert to PNG", "Convert each selected image to PNG", "camera-photo");
     g_signal_connect(item, "activate", G_CALLBACK(image_convert_callback), nautilus_file_info_list_copy(files));
     items = g_list_append(items, item);
+
+    return items;
   }
 
-  return items;
+  return NULL;
 }
 
 static GList* nautilus_png_convert_get_background_items(NautilusMenuProvider *provider, GtkWidget *window, NautilusFileInfo *file_info) {
