@@ -9,27 +9,28 @@ static GObjectClass *parent_class;
 
 static void convert_file(NautilusFileInfo *file_info) {
   GFile *file = nautilus_file_info_get_location(file_info);
-  gchar *file_name = g_file_get_path(file);
+  gchar *path = g_file_get_path(file);
 
-  gchar *base = g_strdup(file_name);
-  gchar *extension = g_strdup(strrchr(base, '.'));
+  gchar *without_ext = g_strdup(path);
+  gchar *extension = strrchr(without_ext, '.');
 	if (extension != NULL)
-    base[strlen(base) - strlen(extension)] = '\0';
-  gchar *new_file_name = g_strdup_printf("%s.png", base);
-  g_free(base);
+    extension = '\0';
+    
+  gchar *png_path = g_strdup_printf("%s.png", without_ext);
+  g_free(without_ext);
 
   gchar *argv[4];
   argv[0] = "/usr/bin/magick";
-  argv[1] = file_name;
-  argv[2] = new_file_name;
+  argv[1] = path;
+  argv[2] = png_path;
   argv[3] = NULL;
 
   pid_t pid;
   if (!g_spawn_async(NULL, argv, NULL, G_SPAWN_DO_NOT_REAP_CHILD, NULL, NULL, &pid, NULL))
     return;
 
-  g_free(file_name);
-  g_free(new_file_name);
+  g_free(path);
+  g_free(png_path);
   g_object_unref(file);
 }
 
@@ -50,10 +51,10 @@ static gboolean nautilus_png_convert_file_is_image(NautilusFileInfo *file_info) 
   g_free(uri_scheme);
 
   gchar *mime_type = nautilus_file_info_get_mime_type(file_info);
-  if (strncmp(mime_type, "image/", 6) != 0)
+  if (g_str_has_prefix(mime_type, "image/"))
     maybe_image = FALSE;
   // We also don't want to convert PNGs to PNG:
-  if (strncmp(mime_type, "image/png", 9) == 0)
+  if (strcmp("image/png", mime_type) == 0)
     maybe_image = FALSE;
   g_free(mime_type);
 
